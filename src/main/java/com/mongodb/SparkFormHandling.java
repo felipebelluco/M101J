@@ -9,40 +9,32 @@ import java.util.HashMap;
 
 import static spark.Spark.*;
 
-public class FavoriteFruit {
+public class SparkFormHandling {
 
     public static void main(String[] args) {
         get("/", (req, res) -> {
+            Configuration configuration = new Configuration();
+            configuration.setClassForTemplateLoading(SparkFormHandling.class, "/");
+
             StringWriter writer = new StringWriter();
 
             try {
                 HashMap<String, Object> params = new HashMap<>();
-                params.put("fruits", Arrays.asList("apple", "orange", "banana", "peach"));
+                params.put("fruits", Arrays.asList("Apple", "Orange", "Banana", "Peach"));
 
-                Template template = getFreemarkerConfig().getTemplate("fruitPicker.ftl");
+                Template template = configuration.getTemplate("fruitPicker.ftl");
                 template.process(params, writer);
 
                 return writer;
             } catch (Exception e) {
-                halt(500);
-                return null;
+                throw halt(500);
             }
         });
 
         post("/favorite_fruit", (req, res) -> {
             String fruit = req.queryParams("fruit");
-            if(fruit == null) {
-                return "Why don't you pick one?";
-            } else {
-                return String.format("Your favorite fruint is %s!", fruit);
-            }
+            return fruit == null ? "Why don't you pick one?" : String.format("Your favorite fruint is %s!", fruit);
         });
-    }
-
-    private static Configuration getFreemarkerConfig() {
-        Configuration configuration = new Configuration();
-        configuration.setClassForTemplateLoading(FavoriteFruit.class, "/");
-        return configuration;
     }
 
 }
